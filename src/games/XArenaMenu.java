@@ -16,6 +16,8 @@ import javax.swing.KeyStroke;
 import TournamentSystem.TSAgentManager;
 import TournamentSystem.TSResultStorage;
 import TournamentSystem.TSSettingsGUI2;
+import TournamentSystem.tools.TSAnalysisDataTransfer;
+import TournamentSystem.tools.TSResultDataAnalysis;
 import controllers.AgentBase;
 import controllers.ExpectimaxNAgent;
 import controllers.HumanPlayer;
@@ -434,6 +436,33 @@ public class XArenaMenu extends JMenuBar {
 					e1.printStackTrace();
 					JOptionPane.showMessageDialog(null, "ERROR : file could not be loaded");
 				}
+			}
+		});
+		menuItem.setToolTipText("<html><body>Load and Visualize saved Tournament Data from Disk</body></html>");
+		menu.add(menuItem);
+
+		menuItem = new JMenuItem("Analyze Results from Disk");
+		menuItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int numPlayers = m_arena.getGameBoard().getStateObs().getNumPlayers();
+				TSResultStorage[] tsr = null;
+				try {
+					tsr = m_arena.tdAgentIO.loadMultipleGBGTSResults();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+				if (tsr == null) {
+					System.out.println("ERROR :: Analyze Results from Disk Load FAILED!");
+					return;
+				}
+
+				TSAnalysisDataTransfer[] tsAD = new TSAnalysisDataTransfer[tsr.length];
+				for (int i=0; i<tsr.length; i++) {
+					TSAgentManager mTSAgentManager = new TSAgentManager(numPlayers);
+					tsAD[i] = mTSAgentManager.loadTSFromDiskToAnalyze(tsr[i]);
+				}
+				// data analysis
+				new TSResultDataAnalysis(tsAD);
 			}
 		});
 		menuItem.setToolTipText("<html><body>Load and Visualize saved Tournament Data from Disk</body></html>");

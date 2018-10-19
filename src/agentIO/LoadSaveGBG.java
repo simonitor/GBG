@@ -575,6 +575,132 @@ public class LoadSaveGBG {
 		return tsr;
 	}
 
+    /**
+     * load multiple saved tournament results from disk to reopen visualization/do analysis
+     * @return				the tournament results loaded
+     * @throws IOException	error while loading the file from disk
+     */
+    public TSResultStorage[] loadMultipleGBGTSResults() throws IOException {
+        ObjectInputStream ois;
+        FileInputStream fis;
+        TSResultStorage[] tsrAll = null;
+
+		String strDir = Types.GUI_DEFAULT_DIR_AGENT+"/"+this.arenaGame.getGameName();
+		String subDir = arenaGame.getGameBoard().getSubDir();
+		if (subDir != null){
+			strDir += "/"+subDir;
+		}
+		strDir += "/TSR/";
+		tools.Utils.checkAndCreateFolder(strDir);
+
+		/*
+		fc.removeChoosableFileFilter(txtExt);
+		fc.setFileFilter(tdTSRExt);
+		fc.setCurrentDirectory(new File(strDir));
+		fc.setAcceptAllFileFilterUsed(false);
+		*/
+		JFileChooser fileChooser = new JFileChooser();
+		fileChooser.setMultiSelectionEnabled(true);
+		fileChooser.removeChoosableFileFilter(txtExt);
+		fileChooser.setFileFilter(tdTSRExt);
+		fileChooser.setCurrentDirectory(new File(strDir));
+		fileChooser.setAcceptAllFileFilterUsed(false);
+
+		int returnVal = fileChooser.showOpenDialog(arenaGame);
+
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			File[] files = fileChooser.getSelectedFiles();
+			tsrAll = new TSResultStorage[files.length];
+
+			for(int i = 0; i<files.length; i++) {
+				System.out.println("Selected file: " + files[i].getAbsolutePath());
+				TSResultStorage tsr = null;
+				File file = files[i];
+				String filePath = null;
+
+				try {
+					filePath = file.getPath();
+					fis = new FileInputStream(filePath);
+				} catch (IOException e) {
+					arenaGame.setStatusMessage("[ERROR: Could not open file " + filePath + " !]");
+					//e.printStackTrace();
+					throw e;
+				}
+
+				GZIPInputStream gs;
+				try {
+					gs = new GZIPInputStream(fis);
+				} catch (IOException e1) {
+					arenaGame.setStatusMessage("[ERROR: Could not create ZIP-InputStream for" + filePath + " !]");
+					throw e1;
+				}
+
+				long fileLength = (long) (estimateGZIPLength(file));
+				final ProgressTrackingObjectInputStream ptis = new ProgressTrackingObjectInputStream(
+						gs, new agentIO.IOProgress(fileLength));
+				try {
+					ois = new ObjectInputStream(ptis);
+				} catch (IOException e1) {
+					ptis.close();
+					arenaGame.setStatusMessage("[ERROR: Could not create ObjectInputStream for" + filePath + " !]");
+					throw e1;
+				}
+
+				final JDialog dlg = createProgressDialog(ptis, "Loading...");
+
+				try {
+					// ois = new ObjectInputStream(gs);
+					Object obj = ois.readObject();
+					if (obj instanceof TSResultStorage) {
+						tsr = (TSResultStorage) obj;
+					} else {
+						dlg.setVisible(false);
+						MessageBox.show(arenaFrame,"ERROR: TSR class "+obj.getClass().getName()+" loaded from "
+								+ filePath + " not processable", "Unknown TS Class", JOptionPane.ERROR_MESSAGE);
+						arenaGame.setStatusMessage("[ERROR: Could not load TSR from "+ filePath + "!]");
+						throw new ClassNotFoundException("ERROR: Unknown TSR class");
+					}
+					dlg.setVisible(false);
+					arenaGame.setProgress(null);
+					arenaGame.setStatusMessage("Done.");
+				} catch (IOException e) {
+					dlg.setVisible(false);
+					MessageBox.show(arenaFrame,"ERROR: " + e.getMessage(),
+							e.getClass().getName(), JOptionPane.ERROR_MESSAGE);
+					arenaGame.setStatusMessage("[ERROR: Could not open file " + filePath + " !]");
+					//e.printStackTrace();
+					//throw e;
+				} catch (ClassNotFoundException e) {
+					dlg.setVisible(false);
+					MessageBox.show(arenaFrame,"ERROR: Class not found: " + e.getMessage(),
+							e.getClass().getName(), JOptionPane.ERROR_MESSAGE);
+					e.printStackTrace();
+					//throw e;
+				} finally {
+					if (ois != null)
+						try {
+							ois.close();
+						} catch (IOException e) {
+							//...
+						}
+					if (fis != null)
+						try {
+							fis.close();
+						} catch (IOException e) {
+							//...
+						}
+				}
+
+				tsrAll[i] = tsr;
+			}
+		} else {
+			arenaGame.setStatusMessage("[ERROR: File choose dialog not approved.]");
+			return null;
+		}
+
+        return tsrAll;
+    }
+
 	/**
 	 * Load multiple GBG agents from disk and update them, if necessary (older agents on disk might 
 	 * not yet have certain elements, which are then filled in from defaults)
@@ -649,7 +775,6 @@ public class LoadSaveGBG {
 				}
 
 				//final JDialog dlg = createProgressDialog(ptis, "Loading...");
-
 
 				try {
 					// ois = new ObjectInputStream(gs);

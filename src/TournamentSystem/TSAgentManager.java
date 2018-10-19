@@ -4,6 +4,7 @@ import TournamentSystem.Scoring.Elo.EloCalculator;
 import TournamentSystem.Scoring.Glicko2.Glicko2RatingCalculator;
 import TournamentSystem.Scoring.Glicko2.Glicko2RatingPeriodResults;
 import TournamentSystem.jheatchart.HeatChart;
+import TournamentSystem.tools.TSAnalysisDataTransfer;
 import TournamentSystem.tools.TSGameDataTransfer;
 import TournamentSystem.tools.TSHeatmapDataTransfer;
 import controllers.PlayAgent;
@@ -703,9 +704,13 @@ public class TSAgentManager {
      * call this method after the tournament ran to process the measurement data to generate the statistics window
      */
     public void makeStats() {
+        makeStats(false);
+    }
+
+    public TSAnalysisDataTransfer makeStats(boolean analysisMode) {
         if (!results.tournamentDone) {
             System.out.println(TAG+"ERROR :: Stats Window cannot be opened, tournament data not available");
-            return;
+            return null;
         }
 
         NumberFormat numberFormat0 = new DecimalFormat("#0.0");
@@ -725,7 +730,12 @@ public class TSAgentManager {
         if (numPlayers==1)
             singlePlayerGame = true;
 
-        TSResultWindow tsResultWindow = new TSResultWindow(startDate, singlePlayerGame);
+        TSResultWindow tsResultWindow = null;
+        TSAnalysisDataTransfer tsAD = new TSAnalysisDataTransfer();
+        tsAD.headLine = startDate;
+        if (!analysisMode) {
+            tsResultWindow = new TSResultWindow(startDate, singlePlayerGame);
+        }
         TSHeatmapDataTransfer mTSHeatmapDataTransfer = new TSHeatmapDataTransfer();
         double[][] rowDataHM = null;
 
@@ -776,11 +786,14 @@ public class TSAgentManager {
             //create table with data
             //JTable tableMatrixWTL = new JTable(rowData1, columnNames1);
             DefaultTableModel defTableMatrixWTL = new DefaultTableModel(rowData1, columnNames1);
-            tsResultWindow.setTableMatrixWTL(defTableMatrixWTL);
+            if (!analysisMode) {
+                tsResultWindow.setTableMatrixWTL(defTableMatrixWTL);
+            }
             //JTable tableMatrixSCR = new JTable(rowData3, columnNames1);
             DefaultTableModel defTableMatrixSCR = new DefaultTableModel(rowData3, columnNames1);
-            tsResultWindow.setTableMatrixSCR(defTableMatrixSCR);
-
+            if (!analysisMode) {
+                tsResultWindow.setTableMatrixSCR(defTableMatrixSCR);
+            }
             /**
              * Score Heatmap
              */
@@ -878,6 +891,10 @@ public class TSAgentManager {
                     }
                 }
             }
+
+            tsAD.dataHMAnalysis1 = dataHMAnalysis1;
+            tsAD.dataHMAnalysis2 = dataHMAnalysis2;
+            tsAD.dataHMAnalysis3 = dataHMAnalysis3;
 
             HeatChart mapA1 = new HeatChart(dataHMAnalysis1, 0, 1, true);
             mapA1.setXValues(getNamesAgentsSelected());
@@ -1024,7 +1041,12 @@ public class TSAgentManager {
         //create table with data
         //JTable tableAgentScore = new JTable(rowData4, columnNames4);
         DefaultTableModel defTableAgentScore = new DefaultTableModel(rowData4, columnNames4);
-        tsResultWindow.setTableAgentScore(defTableAgentScore);
+        if (!analysisMode) {
+            tsResultWindow.setTableAgentScore(defTableAgentScore);
+        }
+        tsAD.tabelAgentScoreLabels = columnNames4;
+        tsAD.tabelAgentScoreData = rowData4;
+        tsAD.agentFilenames = getFileNamesAgentsSelected();
 
         if (numPlayers>1) {
             /**
@@ -1097,7 +1119,9 @@ public class TSAgentManager {
             Image hm2 = map2.getChartImage();
             //tsResultWindow.setHeatMapSorted(new ImageIcon(hm2));
             mTSHeatmapDataTransfer.scoreHeatmapSorted = new ImageIcon(hm2);
-            tsResultWindow.setHeatMap(mTSHeatmapDataTransfer);
+            if (!analysisMode) {
+                tsResultWindow.setHeatMap(mTSHeatmapDataTransfer);
+            }
         }
 
         /**
@@ -1159,7 +1183,9 @@ public class TSAgentManager {
         //xAxis.setLowerBound(-1); // show x axis from -1 to move marker away from axis
         xAxis.setLowerBound(-1*dataset.getDomainUpperBound(false)*0.02); // draw x axis from -2% to the left of total width to move marker at 0 away from y axis
 
-        tsResultWindow.setScatterPlotASvT(scatterPlot);
+        if (!analysisMode) {
+            tsResultWindow.setScatterPlotASvT(scatterPlot);
+        }
 
         // Create Panel - now done in GUI!
         //ChartPanel scatterPlotASvT = new ChartPanel(chart);
@@ -1290,7 +1316,9 @@ public class TSAgentManager {
         //JTable tableTimeDetail = new JTable(rowDataTimeDetail, columnNamesTimeDetail);
         DefaultTableModel defTableTimeDetail = new DefaultTableModel(rowDataTimeDetail, columnNamesTimeDetail);
         DefaultTableModel defTableTimeSimple = new DefaultTableModel(rowDataTimeSimple, columnNamesTimeSimple);
-        tsResultWindow.setTableTimeDetail(defTableTimeDetail, defTableTimeSimple);
+        if (!analysisMode) {
+            tsResultWindow.setTableTimeDetail(defTableTimeDetail, defTableTimeSimple);
+        }
 
         /**
          * TS Results in a window
@@ -1300,6 +1328,11 @@ public class TSAgentManager {
         TSResultWindow mTSRW2 = new TSResultWindow(defTableMatrixWTL, defTableMatrixSCR, defTableAgentScore, defTableTimeDetail,
                 new ImageIcon(hm), new ImageIcon(hm2), scatterPlot, startDate);
                 */
+        if (!analysisMode) {
+            return null; // regular statswindow is done and methond terminates
+        }
+
+        return tsAD;
     }
 
     /**
@@ -1315,6 +1348,15 @@ public class TSAgentManager {
         results = tsr;
         // visualize
         makeStats();
+    }
+
+    public TSAnalysisDataTransfer loadTSFromDiskToAnalyze(TSResultStorage tsr) {
+        if (tsr == null)
+            return null;
+        // load ts results from disk
+        results = tsr;
+        // visualize
+        return makeStats(true);
     }
 
     /**
