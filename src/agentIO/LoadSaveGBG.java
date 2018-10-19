@@ -606,6 +606,7 @@ public class LoadSaveGBG {
 		fileChooser.setFileFilter(tdAgentExt);
 		fileChooser.setCurrentDirectory(new File(strDir));
 		fileChooser.setAcceptAllFileFilterUsed(false);
+		//fileChooser.setPreferredSize(new Dimension(300, 300));
 
 		int returnVal = fileChooser.showOpenDialog(arenaGame);
 

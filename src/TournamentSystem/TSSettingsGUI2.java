@@ -653,7 +653,7 @@ public class TSSettingsGUI2 extends JFrame {
         gbc.anchor = GridBagConstraints.WEST;
         mJPanel.add(addNRandomMovesCheckBox, gbc);
         numOfMovesTextField = new JTextField();
-        numOfMovesTextField.setText("2");
+        numOfMovesTextField.setText("1");
         gbc = new GridBagConstraints();
         gbc.gridx = 1;
         gbc.gridy = 35;
