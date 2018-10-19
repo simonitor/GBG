@@ -3,10 +3,12 @@ package TournamentSystem.tools;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.sql.SQLOutput;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 
 public class TSResultDataAnalysis extends JFrame {
     private final String TAG = "[TSResultDataAnalysis] ";
@@ -83,6 +85,8 @@ public class TSResultDataAnalysis extends JFrame {
             }
         }
 
+        printEXCELM2(agentsM2); // an dieser porition sind die agenten noch nach nicht nach glicko sortiert!
+
         // sort by glicko rating
         Arrays.sort(agentsM2, (entry1, entry2) -> { // same as above
             if (entry1.getAverageGlicko2() > entry2.getAverageGlicko2())
@@ -123,6 +127,79 @@ public class TSResultDataAnalysis extends JFrame {
         DefaultTableModel m1 = new DefaultTableModel(rowData, columnNames);
         tableAgentRanking.setModel(m1);
         //tableAgentRanking.setPreferredScrollableViewportSize(new Dimension(tableAgentRanking.getPreferredSize().width, tableAgentRanking.getRowHeight() * tableAgentRanking.getRowCount()));
+
+
+    }
+
+    private void printEXCELM2(M2AgentScoreSort[] agentsM2) {
+        // excel console boxplot output
+        System.out.println("########################\nEXCEL BOXPLOT DATA START");
+        String CSV = ";";
+        ArrayList<Double> werte = new ArrayList<>();
+        String reihe = "M2-RSM2";
+
+        switch (2) {
+            case 1:
+                System.out.print("Messreihe" + CSV);
+                for (int i = 0; i < agentsM2[0].glickos.size(); i++)
+                    System.out.print(reihe + CSV);
+                System.out.println();
+                for (M2AgentScoreSort m : agentsM2) {
+                    System.out.print(m.name + CSV);
+                    for (double d : m.glickos) {
+                        System.out.print(("" + d).replace('.', ',') + CSV);
+                        werte.add(d);
+                    }
+                    System.out.println();
+                }
+                break;
+
+            case 2:
+                System.out.print("Messreihe" + CSV);
+                for (M2AgentScoreSort m : agentsM2) {
+                    System.out.print(m.name + CSV);
+                }
+                System.out.println();
+                int rows = agentsM2[0].glickos.size();
+                for (int i = 0; i < rows; i++) {
+                    System.out.print(reihe + CSV);
+                    for (M2AgentScoreSort m : agentsM2) {
+                        //System.out.print(m.glickos.get(i) + CSV);((String) row[9]).replace(',', '.')
+                        System.out.print(("" + m.glickos.get(i)).replace('.', ',') + CSV);
+                        werte.add(m.glickos.get(i));
+                    }
+                    System.out.println();
+                }
+                break;
+
+            case 3:
+                /*
+                System.out.print("Messreihe" + CSV);
+                for (M2AgentScoreSort m : agentsM2) {
+                    System.out.print("M2" + CSV);
+                }
+                System.out.println();*/
+                for (M2AgentScoreSort m : agentsM2) {
+                    System.out.print(m.name + CSV);
+                    for (double d : m.glickos) {
+                        System.out.print(("" + d).replace('.', ',') + CSV);
+                        werte.add(d);
+                    }
+                    System.out.println();
+                }
+                break;
+        }
+
+        /*
+        // https://www.youtube.com/watch?v=0K-wSJNC8jo
+        for (M2AgentScoreSort m : agentsM2) {
+            for (double d : m.glickos) {
+                System.out.println(("" + d).replace('.', ',') + CSV + m.name + CSV);
+            }
+        }
+        */
+        System.out.println("########################\nEXCEL BOXPLOT DATA END");
+        System.out.println("MinValue: " + Collections.min(werte) + " MaxValue: " + Collections.max(werte));
     }
 
     /**
