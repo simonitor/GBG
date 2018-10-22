@@ -1,11 +1,18 @@
 package TournamentSystem.tools;
 
+import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.sql.SQLOutput;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -112,23 +119,23 @@ public class TSResultDataAnalysis extends JFrame {
                 "Glicko2",
                 "WonGameRatio"*/
                 "average Glicko2",
+                "standard deviation",
                 "num Glickos"
         };
         Object[][] rowData = new Object[numAgents][columnNames.length];
         for (int i = 0; i < rowData.length; i++) {
             rowData[i][0] = i + 1;
             rowData[i][1] = agentsM2[i].name;
-            rowData[i][2] = agentsM2[i].fileName;
+            rowData[i][2] = agentsM2[i].fileName.replace("HDD ", "");
             rowData[i][3] = numberFormat00.format(agentsM2[i].getAverageGlicko2());
-            rowData[i][4] = agentsM2[i].glickos.size();
+            rowData[i][4] = numberFormat00.format(agentsM2[i].getStandardDeviation());
+            rowData[i][5] = agentsM2[i].glickos.size();
         }
 
         // put data into UI
         DefaultTableModel m1 = new DefaultTableModel(rowData, columnNames);
         tableAgentRanking.setModel(m1);
         //tableAgentRanking.setPreferredScrollableViewportSize(new Dimension(tableAgentRanking.getPreferredSize().width, tableAgentRanking.getRowHeight() * tableAgentRanking.getRowCount()));
-
-
     }
 
     private void printEXCELM2(M2AgentScoreSort[] agentsM2) {
@@ -136,39 +143,40 @@ public class TSResultDataAnalysis extends JFrame {
         System.out.println("########################\nEXCEL BOXPLOT DATA START");
         String CSV = ";";
         ArrayList<Double> werte = new ArrayList<>();
-        String reihe = "M2-RSM2";
+        String reihe = "M3-6%";
+        StringBuilder output = new StringBuilder();
 
         switch (2) {
             case 1:
-                System.out.print("Messreihe" + CSV);
+                output.append("Messreihe").append(CSV);//System.out.print("Messreihe" + CSV);
                 for (int i = 0; i < agentsM2[0].glickos.size(); i++)
-                    System.out.print(reihe + CSV);
-                System.out.println();
+                    output.append(reihe).append(CSV);//System.out.print(reihe + CSV);
+                output.append("\n");//System.out.println();
                 for (M2AgentScoreSort m : agentsM2) {
-                    System.out.print(m.name + CSV);
+                    output.append(m.name).append(CSV);//System.out.print(m.name + CSV);
                     for (double d : m.glickos) {
-                        System.out.print(("" + d).replace('.', ',') + CSV);
+                        output.append(("" + d).replace('.', ',')).append(CSV);//System.out.print(("" + d).replace('.', ',') + CSV);
                         werte.add(d);
                     }
-                    System.out.println();
+                    output.append("\n");//System.out.println();
                 }
                 break;
 
             case 2:
-                System.out.print("Messreihe" + CSV);
+                output.append("Messreihe").append(CSV);//System.out.print("Messreihe" + CSV);
                 for (M2AgentScoreSort m : agentsM2) {
-                    System.out.print(m.name + CSV);
+                    output.append(m.name).append(CSV);//System.out.print(m.name + CSV);
                 }
-                System.out.println();
+                output.append("\n");//System.out.println();
                 int rows = agentsM2[0].glickos.size();
                 for (int i = 0; i < rows; i++) {
-                    System.out.print(reihe + CSV);
+                    output.append(reihe).append(CSV);//System.out.print(reihe + CSV);
                     for (M2AgentScoreSort m : agentsM2) {
                         //System.out.print(m.glickos.get(i) + CSV);((String) row[9]).replace(',', '.')
-                        System.out.print(("" + m.glickos.get(i)).replace('.', ',') + CSV);
+                        output.append(("" + m.glickos.get(i)).replace('.', ',')).append(CSV);//System.out.print(("" + m.glickos.get(i)).replace('.', ',') + CSV);
                         werte.add(m.glickos.get(i));
                     }
-                    System.out.println();
+                    output.append("\n");//System.out.println();
                 }
                 break;
 
@@ -180,14 +188,24 @@ public class TSResultDataAnalysis extends JFrame {
                 }
                 System.out.println();*/
                 for (M2AgentScoreSort m : agentsM2) {
-                    System.out.print(m.name + CSV);
+                    output.append(m.name).append(CSV);//System.out.print(m.name + CSV);
                     for (double d : m.glickos) {
-                        System.out.print(("" + d).replace('.', ',') + CSV);
+                        output.append(("" + d).replace('.', ',')).append(CSV);//System.out.print(("" + d).replace('.', ',') + CSV);
                         werte.add(d);
                     }
-                    System.out.println();
+                    output.append("\n");//System.out.println();
                 }
                 break;
+        }
+        System.out.println(output);
+
+        String filename = "BoxPlot-CSV_Data-" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd--HH.mm.ss"));
+        ;
+        File file = new File("C:\\Users\\Felix\\Desktop\\" + filename + ".csv");
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+            writer.write(output.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
         /*
@@ -279,6 +297,15 @@ public class TSResultDataAnalysis extends JFrame {
             for (double d : glickos)
                 av += d;
             return av / glickos.size();
+        }
+
+        public double getStandardDeviation() {
+            StandardDeviation sd = new StandardDeviation();
+            double[] tmp = new double[glickos.size()];
+            for (int i = 0; i < tmp.length; i++) {
+                tmp[i] = glickos.get(i);
+            }
+            return sd.evaluate(tmp);
         }
     }
 
