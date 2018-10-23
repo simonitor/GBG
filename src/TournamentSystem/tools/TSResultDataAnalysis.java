@@ -82,6 +82,7 @@ public class TSResultDataAnalysis extends JFrame {
             for (Object row[] : tsAD.tabelAgentScoreData) {
                 String filename = (String) row[2];
                 double glicko = Double.parseDouble(((String) row[9]).replace(',', '.')); // kommastelle von komma zu punkt
+                //double glicko = Double.parseDouble("" + row[6]); // WTL statt Glicko2
                 //System.out.println(TAG + "FN: " + filename + " Gl: " + glicko);
                 for (M2AgentScoreSort m : agentsM2) {
                     if (m.fileName.equals(filename)) {
