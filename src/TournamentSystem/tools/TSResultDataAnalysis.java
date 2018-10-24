@@ -505,7 +505,7 @@ public class TSResultDataAnalysis extends JFrame {
         tableSDHM2 = new JTable();
         scrollPane4.setViewportView(tableSDHM2);
         final JLabel label4 = new JLabel();
-        label4.setText("HM: weiss gut ; schwarz böse");
+        label4.setText("HM: weiss gut ; schwarz boese");
         gbc = new GridBagConstraints();
         gbc.gridx = 3;
         gbc.gridy = 6;
