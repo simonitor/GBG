@@ -2,7 +2,7 @@
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="TournamentSystem.tools.TSResultDataAnalysis">
   <grid id="27dc6" binding="mJPanel" layout-manager="GridBagLayout">
     <constraints>
-      <xy x="20" y="20" width="500" height="400"/>
+      <xy x="20" y="20" width="537" height="400"/>
     </constraints>
     <properties/>
     <border type="none"/>
@@ -69,7 +69,7 @@
           <gridbag weightx="0.0" weighty="0.0"/>
         </constraints>
         <properties>
-          <text value="M1 HM Data Wab = Wba"/>
+          <text value="M1 HM Data Wab = Wba + (SD)"/>
         </properties>
       </component>
       <scrollpane id="d4204" binding="jspTableHM1">
@@ -110,7 +110,7 @@
           <gridbag weightx="0.0" weighty="0.0"/>
         </constraints>
         <properties>
-          <text value="M1 HM Data Wab = 1-ba"/>
+          <text value="M1 HM Data Wab = 1-Wba + (SD)"/>
         </properties>
       </component>
       <scrollpane id="b54d4" binding="jspTableHM2">

@@ -26,6 +26,7 @@ public class TSResultDataAnalysis extends JFrame {
     private NumberFormat numberFormat00 = new DecimalFormat("#0.00");
     private NumberFormat numberFormat000 = new DecimalFormat("#0.000");
     private NumberFormat numberFormat0000 = new DecimalFormat("#0.0000");
+    private String datechain = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd--HH.mm.ss"));
 
     private JPanel mJPanel;
     private JTable tableAgentRanking;
@@ -195,14 +196,18 @@ public class TSResultDataAnalysis extends JFrame {
                 if (i != j) {
                     dataHMA1Out[i][j] = numberFormat00.format(dataHMA1Detail[i][j].getAverage());
                     dataHMA2Out[i][j] = numberFormat00.format(dataHMA2Detail[i][j].getAverage());
+
                     if (dataHMA1Detail[i][j].getStandardDeviation() == 0)
                         dataHMA1SDOut[i][j] = "" + 0;
                     else
                         dataHMA1SDOut[i][j] = numberFormat00.format(dataHMA1Detail[i][j].getStandardDeviation());
+                    dataHMA1Out[i][j] += " (" + dataHMA1SDOut[i][j] + ")";
+
                     if (dataHMA2Detail[i][j].getStandardDeviation() == 0)
                         dataHMA2SDOut[i][j] = "" + 0;
                     else
                         dataHMA2SDOut[i][j] = numberFormat00.format(dataHMA2Detail[i][j].getStandardDeviation());
+                    dataHMA2Out[i][j] += " (" + dataHMA2SDOut[i][j] + ")";
                 } else {
                     dataHMA1Out[i][j] = "NaN";
                     dataHMA2Out[i][j] = "NaN";
@@ -220,16 +225,21 @@ public class TSResultDataAnalysis extends JFrame {
                 if (i != j) {
                     dataHMA1[i][j] = dataHMA1Detail[i][j].getAverage();
                     dataHMA2[i][j] = dataHMA2Detail[i][j].getAverage();
+                } else {
+                    dataHMA1[i][j] = HeatChart.COLOR_DIAGONALE;
+                    dataHMA2[i][j] = HeatChart.COLOR_DIAGONALE;
                 }
             }
         }
 
+        // tabelle normalisierte werte + (SD)
         DefaultTableModel m1 = new DefaultTableModel(dataHMA1Out, agents);
         tableHM1.setModel(m1);
         tableHM1.setPreferredScrollableViewportSize(new Dimension(tableHM1.getPreferredSize().width * 1, tableHM1.getRowHeight() * tableHM1.getRowCount()));
         DefaultTableModel m2 = new DefaultTableModel(dataHMA2Out, agents);
         tableHM2.setModel(m2);
 
+        // tabelle standardabweichung
         DefaultTableModel m3 = new DefaultTableModel(dataHMA1SDOut, agents);
         tableSDHM1.setModel(m3);
         tableSDHM1.setPreferredScrollableViewportSize(new Dimension(tableSDHM1.getPreferredSize().width * 1, tableSDHM1.getRowHeight() * tableSDHM1.getRowCount()));
@@ -253,6 +263,22 @@ public class TSResultDataAnalysis extends JFrame {
         ImageIcon scoreHeatmapA2 = new ImageIcon(hmA2);
         hm2.setText("");
         hm2.setIcon(scoreHeatmapA2);
+
+        // save HM as image file to desktop
+        String filename1 = "HeatMap1-" + datechain;
+        String filename2 = "HeatMap2-" + datechain;
+        File file1 = new File("C:\\Users\\Felix\\Desktop\\" + filename1 + ".png");
+        File file2 = new File("C:\\Users\\Felix\\Desktop\\" + filename2 + ".png");
+        try {
+            mapA1.saveToFile(file1);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            mapA2.saveToFile(file2);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void printEXCELM2(M2AgentScoreSort[] agentsM2) {
@@ -316,8 +342,7 @@ public class TSResultDataAnalysis extends JFrame {
         }
         System.out.println(output);
 
-        String filename = "BoxPlot-CSV_Data-" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd--HH.mm.ss"));
-        ;
+        String filename = "BoxPlot-CSV_Data-" + datechain;
         File file = new File("C:\\Users\\Felix\\Desktop\\" + filename + ".csv");
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
             writer.write(output.toString());
@@ -399,7 +424,7 @@ public class TSResultDataAnalysis extends JFrame {
         gbc.insets = new Insets(0, 0, 5, 0);
         mJPanel.add(spacer4, gbc);
         final JLabel label1 = new JLabel();
-        label1.setText("M1 HM Data Wab = Wba");
+        label1.setText("M1 HM Data Wab = Wba + (SD)");
         gbc = new GridBagConstraints();
         gbc.gridx = 1;
         gbc.gridy = 6;
@@ -435,7 +460,7 @@ public class TSResultDataAnalysis extends JFrame {
         gbc.insets = new Insets(0, 0, 5, 0);
         mJPanel.add(spacer7, gbc);
         final JLabel label2 = new JLabel();
-        label2.setText("M1 HM Data Wab = 1-ba");
+        label2.setText("M1 HM Data Wab = 1-Wba + (SD)");
         gbc = new GridBagConstraints();
         gbc.gridx = 1;
         gbc.gridy = 9;
