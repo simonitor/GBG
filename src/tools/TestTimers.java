@@ -1,14 +1,8 @@
 package tools;
 
-import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;
-import java.text.DecimalFormat;
 import java.time.Instant;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.ListIterator;
 
 /**
  *  A test class for different ways to measure time in Java
@@ -17,14 +11,14 @@ import java.util.ListIterator;
 public class TestTimers {
 	
 	// approximate duration 60 microsec on my laptop
-	public static void doSomethingLong() {
+	private static void doSomethingLong() {
     	double sum=0.0;
-    	long NN=60000;
+    	long NN=60000; // 60k
     	for (long i=0; i<NN; i++)
-    		sum=sum+Math.sqrt(Math.abs(Math.sin(0.3)));		
+    		sum=sum+Math.sqrt(Math.abs(Math.sin(0.3)));
 	}
 	
-    public static void main(String[] args) throws IOException
+    public static void main(String[] args)
     {
     	ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
     	System.out.println("CpuTimeSupported():"+threadMXBean.isCurrentThreadCpuTimeSupported());
@@ -56,8 +50,6 @@ public class TestTimers {
     	System.out.println(startTNanoInstant+","+endTNanoInstant);
     	long offset = 0;
     	System.out.println("Micros per op: "+((double)(endTNano-startTNano-offset))/(N*1000));
-    	
-
     }
 
 }
