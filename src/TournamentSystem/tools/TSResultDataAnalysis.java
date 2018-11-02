@@ -72,7 +72,7 @@ public class TSResultDataAnalysis extends JFrame {
         labelTopInfo.setText(info);
 
         doM1();
-        //doM2();
+        doM2();
     }
 
     private void doM2() {
@@ -286,7 +286,18 @@ public class TSResultDataAnalysis extends JFrame {
         System.out.println("########################\nEXCEL BOXPLOT DATA START");
         String CSV = ";";
         ArrayList<Double> werte = new ArrayList<>();
-        String reihe = "M3-6%";
+        String[] names = {
+                "M2-RSM0", // 0
+                "M2-RSM1", // 1
+                "M2-RSM2", // 2
+                "M3-100%", // 3
+                "M3-75%",  // 4
+                "M3-50%",  // 5
+                "M3-25%",  // 6
+                "M3-12%",  // 7
+                "M3-6%"    // 8
+        };
+        String reihe = names[8];
         StringBuilder output = new StringBuilder();
 
         switch (2) {
