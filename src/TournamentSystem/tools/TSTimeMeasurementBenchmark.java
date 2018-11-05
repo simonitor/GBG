@@ -1,11 +1,17 @@
 package TournamentSystem.tools;
 
+import org.apache.commons.math3.stat.descriptive.moment.Mean;
+import org.apache.commons.math3.stat.descriptive.rank.Median;
+
+import java.util.Collections;
+import java.util.Stack;
+
 public class TSTimeMeasurementBenchmark {
     public static void main(String[] args) {
         //one();
         //two();
-        three();
-        //four();
+        //three();
+        four();
     }
 
     private static void one() {
@@ -62,6 +68,50 @@ public class TSTimeMeasurementBenchmark {
     }
 
     private static void four() {
+        Stack<Long> stapel = new Stack<>();
+        int limit = 500;
+        int numValues = 7;
 
+        for (int i=0; i<limit; i++) {
+            //int[] unsortiert = {8, 7, 6, 5, 4, 3, 2, 1, 0};
+            int[] unsortiert = new int[numValues];
+            for (int j=0; j<numValues; j++)
+                unsortiert[j] = numValues-j;
+
+            long start = System.nanoTime();
+            int[] sortiert = insertionSort(unsortiert);
+            long end = System.nanoTime();
+
+            //long delta = end - start;
+            //System.out.println("nanos: " + (end - start));
+            if (end-start < 9999)
+                stapel.push(end-start);
+            try {
+                Thread.sleep(1);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        System.out.println("Min: "+Collections.min(stapel)+" | Max: "+Collections.max(stapel));
+        double[] werte = new double[stapel.size()];
+        for (int i=0; i<werte.length; i++)
+            werte[i] = stapel.pop();
+        Mean avg = new Mean();
+        Median mdn = new Median();
+        System.out.println("Average: "+avg.evaluate(werte)+" | Median: "+mdn.evaluate(werte));
+    }
+    private static int[] insertionSort(int[] sortieren) {
+        int temp;
+        for (int i = 1; i < sortieren.length; i++) {
+            temp = sortieren[i];
+            int j = i;
+            while (j > 0 && sortieren[j - 1] > temp) {
+                sortieren[j] = sortieren[j - 1];
+                j--;
+            }
+            sortieren[j] = temp;
+        }
+        return sortieren;
     }
 }
