@@ -3,6 +3,7 @@ package TournamentSystem.tools;
 import org.apache.commons.math3.stat.descriptive.moment.Mean;
 import org.apache.commons.math3.stat.descriptive.rank.Median;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Stack;
 
@@ -69,8 +70,8 @@ public class TSTimeMeasurementBenchmark {
 
     private static void four() {
         Stack<Long> stapel = new Stack<>();
-        int limit = 500;
-        int numValues = 7;
+        int limit = 25;
+        int numValues = 1000;
 
         for (int i=0; i<limit; i++) {
             //int[] unsortiert = {8, 7, 6, 5, 4, 3, 2, 1, 0};
@@ -84,22 +85,25 @@ public class TSTimeMeasurementBenchmark {
 
             //long delta = end - start;
             //System.out.println("nanos: " + (end - start));
-            if (end-start < 9999)
+            //if (end-start < 9999)
                 stapel.push(end-start);
             try {
-                Thread.sleep(1);
+                Thread.sleep(100);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
 
-        System.out.println("Min: "+Collections.min(stapel)+" | Max: "+Collections.max(stapel));
+        System.out.println("[ns] Min: "+Collections.min(stapel)+" | Max: "+Collections.max(stapel));
         double[] werte = new double[stapel.size()];
         for (int i=0; i<werte.length; i++)
             werte[i] = stapel.pop();
         Mean avg = new Mean();
         Median mdn = new Median();
-        System.out.println("Average: "+avg.evaluate(werte)+" | Median: "+mdn.evaluate(werte));
+        System.out.println("[ns] Average : "+avg.evaluate(werte)+" | Median: "+mdn.evaluate(werte));
+        System.out.println("[mys] Average: "+nanoToMikroS(avg.evaluate(werte))+" | Median: "+nanoToMikroS(mdn.evaluate(werte)));
+        System.out.println("[ms] Average : "+nanoToMilliS(avg.evaluate(werte))+" | Median: "+nanoToMilliS(mdn.evaluate(werte)));
+        //for (double d : werte) System.out.println(d);
     }
     private static int[] insertionSort(int[] sortieren) {
         int temp;
@@ -113,5 +117,11 @@ public class TSTimeMeasurementBenchmark {
             sortieren[j] = temp;
         }
         return sortieren;
+    }
+    private static double nanoToMilliS(double timeNS) {
+        return timeNS/Math.pow(10,6);
+    }
+    private static double nanoToMikroS(double timeNS) {
+        return timeNS/Math.pow(10,3);
     }
 }
