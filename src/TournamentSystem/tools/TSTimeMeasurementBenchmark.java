@@ -7,6 +7,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
@@ -21,6 +23,7 @@ public class TSTimeMeasurementBenchmark {
         //two();
         //three();
         four();
+        //five();
     }
 
     private static void one() {
@@ -77,9 +80,14 @@ public class TSTimeMeasurementBenchmark {
     }
 
     private static void four() {
+        NumberFormat numberFormat00 = new DecimalFormat("#0.00");
         //int startCount = 500;
         //int stepping = 25;
         int[] steps = {
+                7500,
+                5000,
+                2500,
+                1000,
                 500,
                 400,
                 300,
@@ -88,9 +96,11 @@ public class TSTimeMeasurementBenchmark {
                 50,
                 25,
                 10,
-                5
+                5,
+                3,
+                2
         };
-        int runs = 10;
+        int runs = 25;
 
         String seperator = ";";
         String csv = "Messreihe M5"+seperator+"RunsPerStep: "+runs+seperator+"\n";
@@ -115,7 +125,7 @@ public class TSTimeMeasurementBenchmark {
                 stapel.push(end - start);
 
                 try {
-                    Thread.sleep(100);
+                    Thread.sleep(250);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -137,7 +147,86 @@ public class TSTimeMeasurementBenchmark {
             System.out.println("###### CSV OUTPUT ######");
             String out = "";
             for (double d : werte) {
-                out += "V" + numValues + seperator + (""+d).replace('.', ',') + seperator + "\n";
+                out += "V" + numValues + seperator + (""+numberFormat00.format(d)).replace('.', ',') + seperator + "\n";
+            }
+            csv += out;
+            System.out.println(out);
+        } // ende for
+
+        String filename = "BoxPlot-CSV_Data-M5-" + datechain;
+        File file = new File("C:\\Users\\Felix\\Desktop\\" + filename + ".csv");
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+            writer.write(csv);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void five() {
+        int[] steps = {
+                10000000,
+                1000000,
+                100000,
+                10000,
+                1000,
+                1000,
+                750,
+                500,
+                250,
+                100,
+                50,
+                25,
+                10,
+                5,
+                3,
+                2
+        };
+        int runs = 10;
+        long millisSleep = 250;
+
+        String seperator = ";";
+        String csv = "Messreihe M5"+seperator+"RunsPerStep: "+runs+" MillisSleep: "+millisSleep+seperator+"\n";
+
+        //for (int s = startCount; s > 0; s -= stepping) {
+        for (int stepCount : steps) {
+            Stack<Long> stapel = new Stack<>();
+
+            for (int i = 0; i < runs; i++) {
+                long start = System.nanoTime();
+
+                for (int j=0; j<stepCount; j++){
+                    Object o = new Object();
+                    o = null;
+                }
+
+                long end = System.nanoTime();
+                //System.out.println("nanos: " + (end - start));
+                stapel.push(end - start);
+
+                try {
+                    Thread.sleep(250);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            // println statistics
+            System.out.println("[ns] Min: " + Collections.min(stapel) + " | Max: " + Collections.max(stapel));
+            double[] werte = new double[stapel.size()];
+            for (int i = 0; i < werte.length; i++)
+                werte[i] = stapel.pop();
+            Mean avg = new Mean();
+            Median mdn = new Median();
+            System.out.println("[ns] Average : " + avg.evaluate(werte) + " | Median: " + mdn.evaluate(werte));
+            System.out.println("[mys] Average: " + nanoToMikroS(avg.evaluate(werte)) + " | Median: " + nanoToMikroS(mdn.evaluate(werte)));
+            System.out.println("[ms] Average : " + nanoToMilliS(avg.evaluate(werte)) + " | Median: " + nanoToMilliS(mdn.evaluate(werte)));
+            //for (double d : werte) System.out.println(d);
+
+            // csv output
+            System.out.println("###### CSV OUTPUT ######");
+            String out = "";
+            for (double d : werte) {
+                out += "V" + stepCount + seperator + (""+d).replace('.', ',') + seperator + "\n";
             }
             csv += out;
             System.out.println(out);
