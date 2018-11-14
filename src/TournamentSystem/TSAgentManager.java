@@ -869,7 +869,7 @@ public class TSAgentManager {
                         } else {
                             //dataHMAnalysis1[i][j] = HeatChart.COLOR_ANALYSISNEG;
                             //dataHMAnalysis1[i][j] = Math.abs(agentScoreHMData[i][j] - agentScoreHMData[j][i]);
-                            dataHMAnalysis1[i][j] = agentScoreHMData[i][j] - agentScoreHMData[j][i]; //todo checken bzgl symmmetrie
+                            dataHMAnalysis1[i][j] = agentScoreHMData[i][j] - agentScoreHMData[j][i];
                             both = false;
                         }
 
