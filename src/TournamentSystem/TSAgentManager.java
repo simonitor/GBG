@@ -868,7 +868,8 @@ public class TSAgentManager {
                             //dataHMAnalysis1[i][j] = Math.abs(agentScoreHMData[i][j] - agentScoreHMData[j][i]);
                         } else {
                             //dataHMAnalysis1[i][j] = HeatChart.COLOR_ANALYSISNEG;
-                            dataHMAnalysis1[i][j] = Math.abs(agentScoreHMData[i][j] - agentScoreHMData[j][i]);
+                            //dataHMAnalysis1[i][j] = Math.abs(agentScoreHMData[i][j] - agentScoreHMData[j][i]);
+                            dataHMAnalysis1[i][j] = agentScoreHMData[i][j] - agentScoreHMData[j][i]; //todo checken bzgl symmmetrie
                             both = false;
                         }
 
@@ -878,7 +879,8 @@ public class TSAgentManager {
                             //dataHMAnalysis2[i][j] = Math.abs(agentScoreHMData[i][j] - (1-agentScoreHMData[j][i]));
                         } else {
                             //dataHMAnalysis2[i][j] = HeatChart.COLOR_ANALYSISNEG;
-                            dataHMAnalysis2[i][j] = Math.abs(agentScoreHMData[i][j] - (1-agentScoreHMData[j][i]));
+                            //dataHMAnalysis2[i][j] = Math.abs(agentScoreHMData[i][j] - (1-agentScoreHMData[j][i]));
+                            dataHMAnalysis2[i][j] = agentScoreHMData[i][j] - (1-agentScoreHMData[j][i]);
                             both = false;
                         }
 

@@ -146,22 +146,22 @@ public class HeatChart { // based on JHeatChart v0.6
 	 * color code for the main diagonale (agent against itself).<br>
 	 * HeatChart MUST be in tournament mode to apply the color!
 	 */
-	public static final int COLOR_DIAGONALE = -1;
+	public static final int COLOR_DIAGONALE = -10;
 	/**
 	 * color code for games which did not take place.<br>
 	 * HeatChart MUST be in tournament mode to apply the color!
 	 */
-	public static final int COLOR_GAMENOTPLAYED = -2;
+	public static final int COLOR_GAMENOTPLAYED = -20;
 	/**
 	 * color code for an analysis with a POSITIVE outcome.<br>
 	 * HeatChart MUST be in tournament mode to apply the color!
 	 */
-	public static final int COLOR_ANALYSISPOS = -3;
+	public static final int COLOR_ANALYSISPOS = -30;
 	/**
 	 * color code for an analysis with a NEGATIVE outcome.<br>
 	 * HeatChart MUST be in tournament mode to apply the color!
 	 */
-	public static final int COLOR_ANALYSISNEG = -4;
+	public static final int COLOR_ANALYSISNEG = -40;
 	
 	// x, y, z data values.
 	private double[][] zValues;
@@ -268,8 +268,8 @@ public class HeatChart { // based on JHeatChart v0.6
 		this.highValue = high;
 
 		modeTSEnabled = enableTSMode;
-		if (modeTSEnabled) { // no values in TS mode can be lower then 0
-			lowValue = 0;
+		if (modeTSEnabled) { // no values in TS mode can be lower then -1
+			lowValue = -1;
 		}
 		
 		// Default x/y-value settings.
@@ -1751,16 +1751,16 @@ public class HeatChart { // based on JHeatChart v0.6
 		}
 
 		if (modeTSEnabled) {
-			if (data == -1) { // diagonale
+			if (data == COLOR_DIAGONALE) { // diagonale
 				return new Color(0, 0, 255);
 			}
-			if (data == -2) { // games not played
+			if (data == COLOR_GAMENOTPLAYED) { // games not played
 				return new Color(0, 255, 0);
 			}
-			if (data == -3) { // analysis positive
+			if (data == COLOR_ANALYSISPOS) { // analysis positive
 				return new Color(0, 255, 0);
 			}
-			if (data == -4) { // analysis negative
+			if (data == COLOR_ANALYSISNEG) { // analysis negative
 				return new Color(255, 0, 0);
 			}
 		}
