@@ -84,40 +84,50 @@ public class TSTimeMeasurementBenchmark {
         //int startCount = 500;
         //int stepping = 25;
         int[] steps = {
-                7500,
-                5000,
-                2500,
-                1000,
+                /*
+                50000, // ca 400ms
+                10000, // ca 16ms
+                7500,  // ca 9ms
+                5000,  // ca 4ms
+                4000,  // ca 2,5ms
+                */
+                3000,  // ca 1,5ms
+                2000,  // ca 0.6ms
+                1000,  // ca 0.2ms
+                750,
                 500,
                 400,
                 300,
                 200,
-                100,
+                100/*,
                 50,
                 25,
                 10,
                 5,
                 3,
-                2
+                2*/
         };
         int runs = 25;
+        long millisSleep = 250;
 
         String seperator = ";";
-        String csv = "Messreihe M5"+seperator+"RunsPerStep: "+runs+seperator+"\n";
+        String csv = "Messreihe M5"+"RunsPerStep: "+runs+" MillisSleep: "+millisSleep+seperator+"NanoSekunden"+seperator+"MikroSekunden"+seperator+"\n";
 
         //for (int s = startCount; s > 0; s -= stepping) {
         for (int s : steps) {
             Stack<Long> stapel = new Stack<>();
             int numValues = s; // 1000
+            int[] unsortiert = new int[numValues];
+            int[] sortiert;
 
             for (int i = 0; i < runs; i++) {
                 //int[] unsortiert = {8, 7, 6, 5, 4, 3, 2, 1, 0};
-                int[] unsortiert = new int[numValues];
+                //int[] unsortiert = new int[numValues];
                 for (int j = 0; j < numValues; j++)
                     unsortiert[j] = numValues - j;
 
                 long start = System.nanoTime();
-                int[] sortiert = insertionSort(unsortiert);
+                sortiert = insertionSort(unsortiert);
                 long end = System.nanoTime();
 
                 //long delta = end - start;
@@ -125,7 +135,7 @@ public class TSTimeMeasurementBenchmark {
                 stapel.push(end - start);
 
                 try {
-                    Thread.sleep(250);
+                    Thread.sleep(millisSleep);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -147,7 +157,7 @@ public class TSTimeMeasurementBenchmark {
             System.out.println("###### CSV OUTPUT ######");
             String out = "";
             for (double d : werte) {
-                out += "V" + numValues + seperator + (""+numberFormat00.format(d)).replace('.', ',') + seperator + "\n";
+                out += "V" + numValues + seperator + (""+numberFormat00.format(d)).replace('.', ',') + seperator + (""+numberFormat00.format(d/1000)).replace('.', ',') + seperator + "\n";
             }
             csv += out;
             System.out.println(out);
