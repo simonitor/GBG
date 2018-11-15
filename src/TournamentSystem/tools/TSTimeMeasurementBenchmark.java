@@ -1,6 +1,7 @@
 package TournamentSystem.tools;
 
 import org.apache.commons.math3.stat.descriptive.moment.Mean;
+import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
 import org.apache.commons.math3.stat.descriptive.rank.Median;
 
 import java.io.BufferedWriter;
@@ -107,16 +108,18 @@ public class TSTimeMeasurementBenchmark {
                 3,
                 2*/
         };
-        int runs = 25;
+        int runs = 75;
         long millisSleep = 250;
+        String[][] data = new String[steps.length][runs+1];
 
         String seperator = ";";
         String csv = "Messreihe M5"+"RunsPerStep: "+runs+" MillisSleep: "+millisSleep+seperator+"NanoSekunden"+seperator+"MikroSekunden"+seperator+"\n";
+        //String tmpRes = "\nSummary [musec]:"+seperator+"\n"+"Reihe"+seperator+"AVG"+seperator+"SD"+seperator+"ratio"+seperator+"\n";
 
         //for (int s = startCount; s > 0; s -= stepping) {
-        for (int s : steps) {
+        for (int x=0; x<steps.length; x++) {
             Stack<Long> stapel = new Stack<>();
-            int numValues = s; // 1000
+            int numValues = steps[x];
             int[] unsortiert = new int[numValues];
             int[] sortiert;
 
@@ -148,20 +151,38 @@ public class TSTimeMeasurementBenchmark {
                 werte[i] = stapel.pop();
             Mean avg = new Mean();
             Median mdn = new Median();
+            StandardDeviation sd = new StandardDeviation();
             System.out.println("[ns] Average : " + avg.evaluate(werte) + " | Median: " + mdn.evaluate(werte));
             System.out.println("[mys] Average: " + nanoToMikroS(avg.evaluate(werte)) + " | Median: " + nanoToMikroS(mdn.evaluate(werte)));
             System.out.println("[ms] Average : " + nanoToMilliS(avg.evaluate(werte)) + " | Median: " + nanoToMilliS(mdn.evaluate(werte)));
-            //for (double d : werte) System.out.println(d);
+            /*
+            tmpRes += "V"+numValues+seperator+
+                    valToCSV(nanoToMikroS(avg.evaluate(werte)))+seperator+
+                    valToCSV(nanoToMikroS(sd.evaluate(werte)))+seperator+
+                    (valToCSV(nanoToMikroS(sd.evaluate(werte))/nanoToMikroS(avg.evaluate(werte)))+seperator+"\n");
+                    */
 
             // csv output
+            data[x][0] = "V"+numValues + seperator;
             System.out.println("###### CSV OUTPUT ######");
             String out = "";
-            for (double d : werte) {
-                out += "V" + numValues + seperator + (""+numberFormat00.format(d)).replace('.', ',') + seperator + (""+numberFormat00.format(d/1000)).replace('.', ',') + seperator + "\n";
+            for (int d=0; d<werte.length; d++) {
+                out += "V" + numValues + seperator + (""+numberFormat00.format(werte[d])).replace('.', ',') + seperator + (""+numberFormat00.format(werte[d]/1000)).replace('.', ',') + seperator + "\n";
+                data[x][d+1] = (""+numberFormat00.format(werte[d]/1000)).replace('.', ',') + seperator;
             }
             csv += out;
             System.out.println(out);
+
         } // ende for
+        //csv += tmpRes;
+        String table = "\n";
+        for (int a=0; a<data[0].length; a++) {
+            for (int b=0; b<data.length; b++) {
+                table += data[b][a];
+            }
+            table += "\n";
+        }
+        csv += table;
 
         String filename = "BoxPlot-CSV_Data-M5-" + datechain;
         File file = new File("C:\\Users\\Felix\\Desktop\\" + filename + ".csv");
@@ -170,6 +191,10 @@ public class TSTimeMeasurementBenchmark {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+    private static String valToCSV(double value) {
+        NumberFormat numberFormat00 = new DecimalFormat("#0.0000");
+        return numberFormat00.format(value).replace('.', ',');
     }
 
     private static void five() {
