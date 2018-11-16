@@ -184,7 +184,7 @@ public class TSTimeMeasurementBenchmark {
         }
         csv += table;
 
-        String filename = "BoxPlot-CSV_Data-M5-" + datechain;
+        String filename = "BoxPlot-CSV_Data-M5-" + datechain + "--Runs"+runs;
         File file = new File("C:\\Users\\Felix\\Desktop\\" + filename + ".csv");
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
             writer.write(csv);
