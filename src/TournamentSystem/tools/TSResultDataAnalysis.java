@@ -72,7 +72,7 @@ public class TSResultDataAnalysis extends JFrame {
         labelTopInfo.setText(info);
 
         doM1();
-        doM2();
+        //doM2();
     }
 
     private void doM2() {
@@ -153,11 +153,13 @@ public class TSResultDataAnalysis extends JFrame {
     }
 
     private void doM1() {
+        HMDataAnalysis[][] dataHMOrigDetail = new HMDataAnalysis[numAgents][numAgents];
         HMDataAnalysis[][] dataHMA1Detail = new HMDataAnalysis[numAgents][numAgents];
         HMDataAnalysis[][] dataHMA2Detail = new HMDataAnalysis[numAgents][numAgents];
         for (int i = 0; i < numAgents; i++) { // init data structure
             for (int j = 0; j < numAgents; j++) {
                 if (i != j) {
+                    dataHMOrigDetail[i][j] = new HMDataAnalysis();
                     dataHMA1Detail[i][j] = new HMDataAnalysis();
                     dataHMA2Detail[i][j] = new HMDataAnalysis();
                 }
@@ -178,6 +180,8 @@ public class TSResultDataAnalysis extends JFrame {
                             tsADT.dataHMAnalysis2[i][j] = 0;
                         dataHMA1Detail[i][j].add(tsADT.dataHMAnalysis1[i][j]);
                         dataHMA2Detail[i][j].add(tsADT.dataHMAnalysis2[i][j]);
+
+                        dataHMOrigDetail[i][j].add(tsADT.dataHMWTL[i][j]);
                     }
                 }
             }
@@ -217,15 +221,26 @@ public class TSResultDataAnalysis extends JFrame {
             }
         }
 
-        double[][] dataHMA1 = new double[numAgents][numAgents];
-        double[][] dataHMA2 = new double[numAgents][numAgents];
+        double[][] dataHMOrig = new double[numAgents][numAgents]; // original WTL heatmap un-normalisiert
+        double[][] dataHMOrig2 = new double[numAgents][numAgents];
+        double[][] dataHMA1 = new double[numAgents][numAgents]; // advanced HM1
+        double[][] dataHMA2 = new double[numAgents][numAgents]; // advanced HM2
 
         for (int i = 0; i < numAgents; i++) {
             for (int j = 0; j < numAgents; j++) {
                 if (i != j) {
+                    dataHMOrig[i][j] = dataHMOrigDetail[i][j].getAverage();
+
+                    if (j > i)
+                        dataHMOrig2[i][j] = dataHMA1Detail[i][j].getAverage(); // rechts oben
+                    else
+                        dataHMOrig2[i][j] = dataHMA2Detail[i][j].getAverage(); // links unten
+
                     dataHMA1[i][j] = dataHMA1Detail[i][j].getAverage();
                     dataHMA2[i][j] = dataHMA2Detail[i][j].getAverage();
                 } else {
+                    dataHMOrig[i][j] = HeatChart.COLOR_DIAGONALE;
+                    dataHMOrig2[i][j] = HeatChart.COLOR_DIAGONALE;
                     dataHMA1[i][j] = HeatChart.COLOR_DIAGONALE;
                     dataHMA2[i][j] = HeatChart.COLOR_DIAGONALE;
                 }
@@ -246,6 +261,16 @@ public class TSResultDataAnalysis extends JFrame {
         DefaultTableModel m4 = new DefaultTableModel(dataHMA2SDOut, agents);
         tableSDHM2.setModel(m4);
 
+        HeatChart mapOrig1 = new HeatChart(dataHMOrig, 0, HeatChart.max(dataHMOrig), true);
+        mapOrig1.setXValues(agents);
+        mapOrig1.setYValues(agents);
+        mapOrig1.setCellSize(new Dimension(25, 25));
+
+        HeatChart mapOrig2 = new HeatChart(dataHMOrig2, 0, HeatChart.max(dataHMOrig2), true);
+        mapOrig2.setXValues(agents);
+        mapOrig2.setYValues(agents);
+        mapOrig2.setCellSize(new Dimension(25, 25));
+
         HeatChart mapA1 = new HeatChart(dataHMA1, 0, 1, true);
         mapA1.setXValues(agents);
         mapA1.setYValues(agents);
@@ -265,17 +290,31 @@ public class TSResultDataAnalysis extends JFrame {
         hm2.setIcon(scoreHeatmapA2);
 
         // save HM as image file to desktop
-        String filename1 = "HeatMap1-" + datechain;
-        String filename2 = "HeatMap2-" + datechain;
+        String filename1 = "HeatMapOrig1-" + datechain;
+        String filename2 = "HeatMapOrig2-" + datechain;
+        String filename3 = "HeatMapA1-" + datechain;
+        String filename4 = "HeatMapA2-" + datechain;
         File file1 = new File("C:\\Users\\Felix\\Desktop\\" + filename1 + ".png");
         File file2 = new File("C:\\Users\\Felix\\Desktop\\" + filename2 + ".png");
+        File file3 = new File("C:\\Users\\Felix\\Desktop\\" + filename3 + ".png");
+        File file4 = new File("C:\\Users\\Felix\\Desktop\\" + filename4 + ".png");
         try {
-            mapA1.saveToFile(file1);
+            mapOrig1.saveToFile(file1);
         } catch (IOException e) {
             e.printStackTrace();
         }
         try {
-            mapA2.saveToFile(file2);
+            mapOrig2.saveToFile(file2);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            mapA1.saveToFile(file3);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            mapA2.saveToFile(file4);
         } catch (IOException e) {
             e.printStackTrace();
         }

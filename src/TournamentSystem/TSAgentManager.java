@@ -820,8 +820,12 @@ public class TSAgentManager {
              */
             // copy score heatmap data into seperate array
             double[][] agentScoreHMData = new double[rowDataHM.length][rowDataHM[0].length];
+            tsAD.dataHMWTL = new double[rowDataHM.length][rowDataHM[0].length];
             for (int i = 0; i < rowDataHM.length; i++) {
-                System.arraycopy(rowDataHM[i], 0, agentScoreHMData[i], 0, rowDataHM[i].length);
+                for (int j = 0; j < rowDataHM[0].length; j++) {
+                    agentScoreHMData[i][j] = rowDataHM[i][j];
+                    tsAD.dataHMWTL[i][j] = rowDataHM[i][j];
+                }
             }
 
             /*
@@ -868,8 +872,8 @@ public class TSAgentManager {
                             //dataHMAnalysis1[i][j] = Math.abs(agentScoreHMData[i][j] - agentScoreHMData[j][i]);
                         } else {
                             //dataHMAnalysis1[i][j] = HeatChart.COLOR_ANALYSISNEG;
-                            //dataHMAnalysis1[i][j] = Math.abs(agentScoreHMData[i][j] - agentScoreHMData[j][i]);
-                            dataHMAnalysis1[i][j] = agentScoreHMData[i][j] - agentScoreHMData[j][i];
+                            dataHMAnalysis1[i][j] = Math.abs(agentScoreHMData[i][j] - agentScoreHMData[j][i]);
+                            //dataHMAnalysis1[i][j] = agentScoreHMData[i][j] - agentScoreHMData[j][i];
                             both = false;
                         }
 
@@ -879,8 +883,8 @@ public class TSAgentManager {
                             //dataHMAnalysis2[i][j] = Math.abs(agentScoreHMData[i][j] - (1-agentScoreHMData[j][i]));
                         } else {
                             //dataHMAnalysis2[i][j] = HeatChart.COLOR_ANALYSISNEG;
-                            //dataHMAnalysis2[i][j] = Math.abs(agentScoreHMData[i][j] - (1-agentScoreHMData[j][i]));
-                            dataHMAnalysis2[i][j] = agentScoreHMData[i][j] - (1-agentScoreHMData[j][i]);
+                            dataHMAnalysis2[i][j] = Math.abs(agentScoreHMData[i][j] - (1-agentScoreHMData[j][i]));
+                            //dataHMAnalysis2[i][j] = agentScoreHMData[i][j] - (1-agentScoreHMData[j][i]);
                             both = false;
                         }
 
