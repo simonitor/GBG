@@ -72,7 +72,7 @@ public class TSResultDataAnalysis extends JFrame {
         labelTopInfo.setText(info);
 
         doM1();
-        //doM2();
+        doM2();
     }
 
     private void doM2() {
